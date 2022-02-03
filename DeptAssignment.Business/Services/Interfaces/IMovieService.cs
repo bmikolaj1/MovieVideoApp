@@ -5,6 +5,6 @@ namespace DeptAssignment.Business.Services.Interfaces
 {
     public interface IMovieService
     {
-        Task<SearchData> SearchMovies(string searchStr, string apiKey);
+        Task<SearchData> SearchMovies(string searchStr);
     }
 }

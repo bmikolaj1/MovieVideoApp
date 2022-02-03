@@ -1,7 +1,8 @@
 ﻿using DeptAssignment.Business.Models.Imdb;
 using DeptAssignment.Business.Services.Interfaces;
+using DeptAssignment.Common.Common.InMemCache;
+using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
-using System.Configuration;
 using System.Net.Http;
 using System.Threading.Tasks;
 
@@ -9,25 +10,33 @@ namespace DeptAssignment.Business.Services
 {
     public class MovieService : IMovieService
     {
-        //en is a language parameter and in this assignment we always default it to english
-        public const string baseUrl = "https://imdb-api.com/en/API/";
+
+        private readonly IConfiguration _configuration;
 
         public HttpClient httpClient = new HttpClient();
 
-        public MovieService()
-        {
 
+        public MovieService(IConfiguration configuration)
+        {
+            _configuration = configuration;
         }
 
-        public async Task<SearchData> SearchMovies(string searchStr, string apiKey)
+        public async Task<SearchData> SearchMovies(string searchStr)
         {
             string moviePrefix = "SearchMovie";
-            string fullUrl = $"{baseUrl}{moviePrefix}/{apiKey}/{searchStr}";
+            string imdbAPIKey = _configuration["ImdbAPI:APIKey"];
+            string baseUrl = _configuration["ImdbAPI:BaseUrl"];
+            string fullUrl = $"{baseUrl}{moviePrefix}/{imdbAPIKey}/{searchStr}";
 
-            HttpResponseMessage response = await httpClient.GetAsync(fullUrl);
-            response.EnsureSuccessStatusCode();
+            InMemCache<HttpResponseMessage> movieCache = new InMemCache<HttpResponseMessage>();
 
-            string result = await response.Content.ReadAsStringAsync();
+            //HttpResponseMessage response = await httpClient.GetAsync(fullUrl);
+            //response.EnsureSuccessStatusCode();
+
+            //check if the same movies with the exact searchStr exist in cache, if not execute request
+            HttpResponseMessage movieResult = await movieCache.GetOrCreate(searchStr, async () => await httpClient.GetAsync(fullUrl));
+
+            string result = await movieResult.Content.ReadAsStringAsync();
 
             return JsonConvert.DeserializeObject<SearchData>(result);
         }

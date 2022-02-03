@@ -9,19 +9,16 @@ namespace DeptAssignment.API.Controllers
     public class MovieController : ControllerBase
     {
         private readonly IMovieService _movieService;
-        private readonly IConfiguration _configuration;
 
-        public MovieController(IMovieService movieService, IConfiguration configuration)
+        public MovieController(IMovieService movieService)
         {
             _movieService = movieService;
-            _configuration = configuration;
         }
 
         [HttpGet(Name = "SearchMovies")]
         public async Task<SearchData> SearchMovies(string searchStr)
         {
-            string? imdbAPIKey = _configuration["ImdbAPI:APIKey"];
-            return await _movieService.SearchMovies(searchStr, imdbAPIKey);
+            return await _movieService.SearchMovies(searchStr);
         }
 
     }
