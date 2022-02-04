@@ -1,13 +1,10 @@
-using DeptAssignment.Business.Models;
 using DeptAssignment.Business.Services;
 using DeptAssignment.Business.Services.Interfaces;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Identity.Web;
-using System.Configuration;
 
-var builder = WebApplication.CreateBuilder(args);
-var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
+WebApplicationBuilder? builder = WebApplication.CreateBuilder(args);
+string? MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 
 // Add services to the container.
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -27,10 +24,16 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddMemoryCache(options =>
+{
+    // Overall 1024 size (no unit)
+    options.SizeLimit = 1024;
+});
+
 builder.Services.AddScoped<IMovieService, MovieService>();
 builder.Services.AddScoped<IVideoService, VideoService>();
 
-var app = builder.Build();
+WebApplication? app = builder.Build();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

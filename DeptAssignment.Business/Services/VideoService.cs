@@ -35,7 +35,7 @@ namespace DeptAssignment.Business.Services
 
             if (searchListResponse is null)
             {
-                return String.Empty;
+                return string.Empty;
             }
 
             return searchListResponse.Items.FirstOrDefault()?.Id?.VideoId;
